@@ -15,10 +15,6 @@ package
 	
 	public class MenuState extends FlxState
 	{
-		//[Embed(source = '../assets/Library.jpg')] private var backgroundPNG:Class;
-		//private var background:FlxSprite;
-		//private var Shop__MC:MovieClip;
-		
 		//COSMETICS
 		private var ShopBackgroundImageMC:MovieClip;
 		private var ShopBookContainerMC:MovieClip;
@@ -27,6 +23,8 @@ package
 		private var ShopUpgradeContainerMC:MovieClip;
 		private var ShopGemLargeContainerMC:MovieClip;
 		private var ShopGemWhiteContainerMC:MovieClip;
+		
+		
 		
 		//BOOK IMAGES
 		private var ShopBasicBookImageMC:MovieClip;
