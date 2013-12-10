@@ -18,14 +18,11 @@ package
 		[Embed(source = '../assets/Stage.png')] private var backgroundPNG:Class;
 		//[Embed(source = '../assets/Stages.swf')] private var _backgroundMC:Class;
 		
-		private var menuDelay:FlxDelay;
-		
-		private var pierce:Boolean = false;
-
 		private var background:FlxSprite;
 		
 		private var cameraClone:FlxSprite;
 		
+		//GENERAL TEXT VARS
 		private var debug:FlxText;
 		private var playerEquip:FlxText;
 		private var playerHealth:FlxText;
@@ -36,6 +33,7 @@ package
 		private var playerWave:FlxText;
 		private var playerEnemyCount:FlxText;
 		
+		//CLASS VARIABLES
 		public static var stageCenter:stageCenterPoint;
 		public static var playerCenter:centerPoint;
 		public static var bulletCenter:bulletCenterPoint;
@@ -45,6 +43,7 @@ package
 		public static var playerBullets:BulletManager;
 		public static var enemies:EnemyManager;
 		
+		//INITIALISES STATE
 		public function PlayState() 
 		{
 			super();
@@ -56,6 +55,7 @@ package
 			
 			GameConfig._currentState = "Play";
 			
+			//SETS THE BOUNDS FOR THE STAGE AND THE CAMERA
 			//FlxG.showBounds(0, 0, 3200, 1760);
 			FlxG.worldBounds.x = 0;
 			FlxG.worldBounds.y = 0;
@@ -66,6 +66,7 @@ package
 			background = new FlxSprite(0, 0, backgroundPNG);
 			add(background);
 			
+			//SETS PARAMETERS FOR THE TEXT DISPLAYS
 			debug = new FlxText(0, 0, 400, "");
 			playerEquip = new FlxText(0, 0, 400, "");
 			playerScore = new FlxText(0, 20, 400, "");
@@ -76,6 +77,7 @@ package
 			playerWave = new FlxText(0, 120, 400, "");
 			playerEnemyCount = new FlxText(0, 140, 400, "");
 			
+			//SETS THE TEXT SCROLL FACTORS TO 0 SO IT IS UNAFFECTED BY CAMERA MOVEMENT
 			debug.scrollFactor.x = 0;
 			debug.scrollFactor.y = 0;
 			playerEquip.scrollFactor.x = 0;
@@ -95,6 +97,7 @@ package
 			playerEnemyCount.scrollFactor.x = 0;
 			playerEnemyCount.scrollFactor.y = 0;
 			
+			//INITIALISES CLASSES
 			stageCenter = new stageCenterPoint;
 			playerCenter = new centerPoint;
 			bulletCenter = new bulletCenterPoint;
@@ -104,6 +107,7 @@ package
 			playerBullets = new BulletManager;
 			enemies = new EnemyManager;
 			
+			//ADDS CLASSES TO STATE
 			add(stageCenter);
 			add(playerCenter);
 			add(bulletCenter);
@@ -113,10 +117,13 @@ package
 			add(playerBullets);
 			add(enemies);
 			
+			//LOADS BULLET CLASS
 			playerBullets.loadWeapons();
 			
+			//SETS THE CAMERA TO FOLLOW THE PLAYER OBJECT
 			FlxG.camera.follow(player, 3);
 			
+			//ADDS TEXT OBJECTS TO STAGE
 			add(playerEquip);
 			add(playerHealth);
 			add(playerScore);
@@ -138,12 +145,28 @@ package
 				//trace(GameConfig._currentUpgrades[3]);
 			}
 			
+			//REGENERATES MANA PER SECOND
 			if (player.mana != player.maxMana && player.alive)
 			{
 				player.mana = player.mana + GameConfig._currentUpgrades[1];
 				//trace(GameConfig._currentUpgrades[3]);
 			}
 			
+			//PLAYER PHASING
+			if (FlxG.keys.justPressed("SHIFT"))
+			{
+				if (player.mana > 100 && !player.phased)
+				{
+					player.mana -= 100;
+					player.phased = true;
+				}
+				else if (player.phased)
+				{
+					player.phased = false;
+				}
+			}
+			
+			//DRAINS MANA WHILE THE PLAYER IS PHASED
 			if (player.mana > 0 && player.alive && player.phased)
 			{
 				player.mana -= 5;
@@ -154,11 +177,15 @@ package
 				player.phased = false;
 			}
 			
+			//CHANGES GAME STATE WHEN ALL WAVES ARE COMPLETED AND THE ENEMY
 			if (enemies.waveEvent == "Completed")
 			{
 				changeStates();
 			}
 			
+			
+			
+			//CHANGES THE ORBS POSITION DEPENDANT ON THE MOUSE RELATIVE TO PLAYER POSITION
 			orb.updateAngle(FlxVelocity.angleBetweenMouse(playerCenter , false));
 			
 			
@@ -278,19 +305,8 @@ package
 				break;
 			}
 			
-			//PLAYER PHASING
-			if (FlxG.keys.justPressed("SHIFT"))
-			{
-				if (player.mana > 100 && !player.phased)
-				{
-					player.mana -= 100;
-					player.phased = true;
-				}
-				else if (player.phased)
-				{
-					player.phased = false;
-				}
-			}
+			
+			
 			//BOMB FIRED
 			if (FlxG.keys.pressed("SPACE"))
 			{
@@ -412,7 +428,7 @@ package
 				}
 			}
 			
-			//CHEATS
+			//CHEATS - ADD GOLD
 			if (FlxG.keys.pressed("P"))
 			{
 				GameConfig._currentGold += 10000;
@@ -425,10 +441,10 @@ package
 				FlxG.resetState();
 			}
 			
-			//SKIP STRAIGHT TO MENU
+			//SKIP STRAIGHT TO MENU STATE
 			if (FlxG.keys.justPressed("ENTER"))
 			{
-				switchToMenu();
+				changeStates();
 			}
 
 			//UPDATE TEXT DISPLAYS
@@ -441,6 +457,8 @@ package
 			playerWave.text = "Current Wave: " + (enemies.currentWave+1) + "/" + enemies.maxWaves;
 			playerEnemyCount.text = "Enemies remaining: " + enemies.waveLength + "/" + enemies.waveTotal;
 		}
+		
+		//REMOVE THE PLAYSTATE CLASSES AND MOVE TO MENU STATE
 		public function changeStates():void
 		{
 			if (GameConfig._currentLevel == GameConfig._maxLevel && GameConfig._maxLevel < 12)
